@@ -1,11 +1,10 @@
-div(class='panel panel-primary')
-  div(class='panel-heading') Profile
+div(class='panel panel-default')
   if user
+    div(class='panel-heading') #{user.displayName}
+      span(class='pull-right gold') Over 9000 <span class='glyphicon glyphicon-registration-mark gold'></span>
     div(class='panel-body')
-      h2 #{user.displayName}
-        span(class='pull-right gold') Over 9000<span class='glyphicon glyphicon-registration-mark gold'></span>
+      h2 <span class='glyphicon glyphicon-pushpin'></span> Insert an image here
     ul(class='list-group')
-      li(class='list-group-item') Email: #{user.email}
-      li(class='list-group-item') Display Name: #{user.displayName}
-      li(class='list-group-item') First Name: #{user.firstName}
-      li(class='list-group-item') Last Name: #{user.lastName}
+      li(class='list-group-item') #{user.email}
+      if employee
+        li(class='list-group-item') Insert past recognitions here

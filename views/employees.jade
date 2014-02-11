@@ -1,6 +1,11 @@
 extends layout
 
 block content
-  each employee in employees
-    p Name: #{employee.displayName}
-    p Email: #{employee.email}
+  for employee in employees
+    div(class='row')
+      div(class='col-md-8 col-md-offset-2 container')
+        include employee.jade
+  else
+    div(class='row')
+      div(class='col-md-8 col-md-offset-2 container')
+        div(class='alert alert-info') <strong>Sorry,</strong> No Results
