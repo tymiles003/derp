@@ -17,9 +17,14 @@ exports.account = function (db) {
         ]
       }, '', function(err, docs) {
         if (err) {
+          // log the error and display no results
           console.log(err);
-          res.render('account', { user: req.user });
+          res.render('employees', { user: req.user, employees: [], error: err });
+        } else if (docs.length === 1) {
+          // recognize this user
+          res.render('recognize', { user: req.user, employee: docs[0] });
         } else {
+          // display no results or list of employees
           res.render('employees', { user: req.user, employees: docs });
         }
       });
@@ -46,5 +51,5 @@ exports.ensureAuthenticated = function (req, res, next) {
   if (req.isAuthenticated()) { 
     return next();
   }
-  res.redirect('/login');
+  res.render('index', { error: 'You must be logged in to continue.' });
 };

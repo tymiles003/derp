@@ -36,4 +36,11 @@ html
               li
                 a(href='/auth/google') Login  
                   span(class='glyphicon glyphicon-log-in')
-    block content
+    div(class='container-fluid')
+      if error
+        div(class='row')
+          div(class='col-md-8 col-md-offset-2 container')
+            div(class='alert alert-danger alert-dismissable')
+              button(type='button', class='close', data-dismiss='alert', aria-hidden='true') &times;
+              <strong>Oh Snap!</strong> #{error}
+      block content

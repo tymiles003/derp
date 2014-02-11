@@ -1,0 +1,11 @@
+div(class='panel panel-primary')
+  div(class='panel-heading') Profile
+  if employee
+    div(class='panel-body')
+      h2 #{employee.displayName}
+        span(class='pull-right gold') Over 9000<span class='glyphicon glyphicon-registration-mark gold'></span>
+    ul(class='list-group')
+      li(class='list-group-item') Email: #{employee.email}
+      li(class='list-group-item') Display Name: #{employee.displayName}
+      li(class='list-group-item') First Name: #{employee.firstName}
+      li(class='list-group-item') Last Name: #{employee.lastName}
