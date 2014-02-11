@@ -1,0 +1,15 @@
+extends layout
+
+block content
+  div(class='container-fluid')
+    div(class='row')
+      div(class='col-md-8 col-md-offset-2 container')
+        div(class='jumbotron')
+          if user
+            h1 Hello, #{user.firstName}
+            p DERP is still under development but feel free to DERP around.
+          else
+            h1 Hello, You...
+            p Welcome to DERP (Dedicated Employee Recognition Program). DERP is currently under development, but is envisioned as a way to recognize your fellow employees for, well, anything. So login now and start DERPing!
+            p
+              a(href='/auth/google', class='btn btn-primary btn-lg', role='button') Login Now
