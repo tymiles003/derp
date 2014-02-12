@@ -1,7 +1,6 @@
 div(class='panel panel-default')
   if employee
-    div(class='panel-heading')
-      &nbsp; #{employee.displayName}
+    div(class='panel-heading') #{employee.displayName}
       span(class='pull-right gold') Over 9000 <span class='glyphicon glyphicon-registration-mark gold'></span>
     if !employees
       div(class='panel-body')
