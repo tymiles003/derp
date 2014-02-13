@@ -1,10 +1,16 @@
 div(class='panel panel-default')
   if employee
     div(class='panel-heading') #{employee.displayName}
-      span(class='pull-right gold') Over 9000 <span class='glyphicon glyphicon-registration-mark gold'></span>
+      span(class='pull-right gold')
+        if employee.coins > 9000
+          span Over 9000 
+        else
+          span #{employee.coins} 
+        span(class='glyphicon glyphicon-registration-mark gold')
     if !employees
       div(class='panel-body')
         div(class='row')
+          h1 
           div(class='col-md-12')
             form(role='message', action='/recognize/'+employee._id, method='POST')
               div(class='input-group input-group-lg')
@@ -15,4 +21,8 @@ div(class='panel panel-default')
     ul(class='list-group')
       li(class='list-group-item') #{employee.email}
       if !employees
-        li(class='list-group-item') Insert past recognitions here
+        for recognition in employee.recognitions
+          li(class='list-group-item')
+            include recognition.jade
+        else
+          li(class='list-group-item') #{employee.firstName} doesn't appreciate you... *sniffle*

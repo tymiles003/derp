@@ -1,10 +1,31 @@
 div(class='panel panel-default')
   if user
     div(class='panel-heading') #{user.displayName}
-      span(class='pull-right gold') Over 9000 <span class='glyphicon glyphicon-registration-mark gold'></span>
+      span(class='pull-right gold') 
+        if user.coins > 9000
+          span Over 9000 
+        else
+          span #{user.coins}
+        span(class='glyphicon glyphicon-registration-mark gold')
     div(class='panel-body')
-      h2 <span class='glyphicon glyphicon-pushpin'></span> Insert an image here
+      div(class='row')
+        div(class='col-md-2')
+          h1 
+            h2
+              span(class='glyphicon glyphicon-pushpin gold')
+        div(class='col-md-2')
+          h1 
+            h2
+              span(class='glyphicon glyphicon-pushpin gold')
+        div(class='col-md-2')
+          h1 
+            h2
+              span(class='glyphicon glyphicon-pushpin gold')
     ul(class='list-group')
       li(class='list-group-item') #{user.email}
       if employee
-        li(class='list-group-item') Insert past recognitions here
+        for recognition in user.recognitions
+          li(class='list-group-item')
+            include recognition.jade
+        else
+          li(class='list-group-item') Why do you hate #{employee.firstName}? Say thanks or something.

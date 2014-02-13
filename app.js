@@ -117,7 +117,7 @@ app.get('/auth/google', passport.authenticate('google', { failureRedirect: '/log
 app.get('/auth/google/return', passport.authenticate('google', { failureRedirect: '/login' }), routes.auth);
 app.get('/logout', routes.logout);
 
-app.post('/recognize/:id*', routes.ensureAuthenticated, routes.recognize(db));
+app.post('/recognize/:id*', routes.ensureAuthenticated, routes.recognize(db, routes.account(db)));
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
