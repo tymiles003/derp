@@ -57,21 +57,15 @@ passport.use(new GoogleStrategy({
     var collection = db.get('usercollection');
     var user = {};
 
-    user.identifier = identifier;
-    user.email = profile.emails[0].value;
-    user.displayName = profile.displayName;
-    user.firstName = profile.name.givenName;
-    user.lastName = profile.name.familyName;
-
-    collection.findOne({ email: profile.emails[0].value }, function(err, docs) {
+    collection.findOne({ identifier: identifier }, function(err, doc) {
       if (err) {
         // something broke
-        console.log('BROKE');
-      } else if (docs !== null) {
+        done(err);
+      } else if (doc !== null) {
         // update db
-        console.log('UPDATE');
+        done(null, doc);
       } else {
-        console.log('INSERT');
+        console.log('INSERT: ' + identifier);
 //        collection.insert({
 //          "identifier": identifier,
 //          "email": profile.emails[0].value,
@@ -79,9 +73,14 @@ passport.use(new GoogleStrategy({
 //          "firstName": profile.name.givenName,
 //          "lastName": profile.name.familyName
 //        });
+        done(null, {
+          _id: null,
+          email: profile.emails[0].value,
+          displayName: profile.displayName,
+          firstName: profile.name.givenName,
+          lastName: profile.name.familyName
+        });
       }
-
-      done(null, user);
     });
   }
 ));
@@ -117,6 +116,8 @@ app.get('/account', routes.ensureAuthenticated, routes.account(db));
 app.get('/auth/google', passport.authenticate('google', { failureRedirect: '/login' }), routes.auth);
 app.get('/auth/google/return', passport.authenticate('google', { failureRedirect: '/login' }), routes.auth);
 app.get('/logout', routes.logout);
+
+app.post('/recognize/:id*', routes.ensureAuthenticated, routes.recognize(db));
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));

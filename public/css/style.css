@@ -10,3 +10,7 @@ a {
 .gold {
   color: #DAA520;
 }
+
+.employees:hover .panel-heading {
+  background-color: #E7E7E7;
+}

@@ -4,7 +4,8 @@ block content
   for employee in employees
     div(class='row')
       div(class='col-md-8 col-md-offset-2 container')
-        include employee.jade
+        a(href='/account?id='+employee._id, style='text-decoration: none', class='employees')
+          include employee.jade
   else
     div(class='row')
       div(class='col-md-8 col-md-offset-2 container')
