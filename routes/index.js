@@ -126,31 +126,35 @@ exports.recognize = function (db, followup) {
               });
 
               collection.on('success', function (docs) {
-                res.locals.success = 'You just sent ' + employee.firstName + ' some swag, err, derpcoins. Karma+1';
-                if (typeof followup === 'function') {
-                  req.query.id = employee._id;
-                  followup(req, res);
+                // reward user for recognizing
+                collection = db.get('recognitioncollection').find({
+                  from_id: db.get('usercollection').id(user._id),
+                  date: { $gt: thisdate-36000000 }
+                }, '');
 
-                  // reward user for recognizing but don't worry about response anymore because we don't care about them
-                  collection = db.get('recognitioncollection').find({
-                    from_id: db.get('usercollection').id(user._id),
-                    date: { $gt: thisdate-36000000 }
-                  }, '');
+                collection.on('complete', function (err, docs) {
+                  if (docs) {
+                    from_coins = Math.floor(from_coins * Math.pow(.75, docs.length-1));
+                  }
+
+                  collection = db.get('usercollection').update({
+                    _id: db.get('usercollection').id(user._id)
+                  }, {
+                    $inc: { coins: from_coins }
+                  })
 
                   collection.on('complete', function (err, docs) {
-                    if (docs) {
-                      from_coins = Math.floor(from_coins * Math.pow(.75, docs.length-1));
-                    }
+                    user.coins += from_coins;
+                    req.user = user;
+                    req.query.id = employee._id;
 
-                    collection = db.get('usercollection').update({
-                      _id: db.get('usercollection').id(user._id)
-                    }, {
-                      $inc: { coins: from_coins }
-                    });
+                    if (typeof followup === 'function') {
+                      followup(req, res);
+                    } else {
+                      return res.render('index', { user: user });
+                    }
                   });
-                } else {
-                  return res.render('index', { user: user });
-                }
+                });
               });
 
               collection.on('error', function (err) {
@@ -190,10 +194,17 @@ exports.unknown = function (req, res) {
   res.redirect('/');
 };
 
-exports.ensureAuthenticated = function (db) {
+exports.ensureAuthenticated = function (req, res, next) {
+  if (req.isAuthenticated()) { 
+    return next();
+  }
+  res.render('index', { error: 'You must be logged in to continue.' });
+};
+
+exports.updateUser = function (db) {
   return function (req, res, next) {
-    if (req.isAuthenticated()) {
-      collection = db.get('usercollection').findOne({ _id: req.user._id });
+    if (req && req.user && req.user._id) {
+      var collection = db.get('usercollection').findOne({ _id: req.user._id });
 
       collection.on('complete', function (err, doc) {
         if (doc) {
@@ -202,7 +213,7 @@ exports.ensureAuthenticated = function (db) {
         return next();
       });
     } else {
-      res.render('index', { error: 'You must be logged in to continue.' });
+      return next();
     }
   };
 };

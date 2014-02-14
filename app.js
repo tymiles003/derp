@@ -111,13 +111,15 @@ if ('development' == app.get('env')) {
   app.use(express.errorHandler());
 }
 
+app.all('*', routes.updateUser(db));
+
 app.get('/', routes.index);
-app.get('/account', routes.ensureAuthenticated(db), routes.account(db));
+app.get('/account', routes.ensureAuthenticated, routes.account(db));
 app.get('/auth/google', passport.authenticate('google', { failureRedirect: '/login' }), routes.auth);
 app.get('/auth/google/return', passport.authenticate('google', { failureRedirect: '/login' }), routes.auth);
 app.get('/logout', routes.logout);
 
-app.post('/recognize/:id*', routes.ensureAuthenticated(db), routes.recognize(db, routes.account(db)));
+app.post('/recognize/:id*', routes.ensureAuthenticated, routes.recognize(db, routes.account(db)));
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
