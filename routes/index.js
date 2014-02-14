@@ -29,7 +29,12 @@ exports.account = function (db) {
       }, '');
     } else {
       queryToken = db.get('usercollection').id(user._id);
-      collection = db.get('recognitioncollection').find({}, '');
+      collection = db.get('recognitioncollection').find({
+        $or: [
+          { to_id: queryToken },
+          { from_id: queryToken }
+        ]
+      }, '');
 
       collection.on('complete', function (err, docs) {
         user.recognitions = docs || [];
@@ -204,7 +209,7 @@ exports.ensureAuthenticated = function (req, res, next) {
 exports.updateUser = function (db) {
   return function (req, res, next) {
     if (req && req.user && req.user._id) {
-      var collection = db.get('usercollection').findOne({ _id: req.user._id });
+      var collection = db.get('usercollection').findOne({ _id: db.get('usercollection').id(req.user._id) });
 
       collection.on('complete', function (err, doc) {
         if (doc) {

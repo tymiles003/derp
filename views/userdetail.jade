@@ -1,0 +1,9 @@
+div(class='panel panel-default')
+  if user
+    div(class='panel-heading') Recognitions
+    ul(class='list-group')
+      for recognition in user.recognitions
+        li(class='list-group-item')
+          include recognition.jade
+      else
+        li(class='list-group-item') Holy Cow, Scrooge McDuck, go thank someone.
