@@ -82,7 +82,7 @@ exports.recognize = function (db, followup) {
         employee,
         message = req.body.message || 'Just \'cuz.'
         to_coins = 100,
-        from_coins = 25,
+        from_coins = 50,
         serverdate = new Date(),
         thisdate = (new Date(serverdate.getUTCFullYear(), serverdate.getUTCMonth(), serverdate.getUTCDate(), serverdate.getUTCHours(), serverdate.getUTCMinutes(), serverdate.getUTCSeconds())).getTime();
 
@@ -130,6 +130,24 @@ exports.recognize = function (db, followup) {
                 if (typeof followup === 'function') {
                   req.query.id = employee._id;
                   followup(req, res);
+
+                  // reward user for recognizing but don't worry about response anymore because we don't care about them
+                  collection = db.get('recognitioncollection').find({
+                    from_id: db.get('usercollection').id(user._id),
+                    date: { $gt: thisdate-36000000 }
+                  }, '');
+
+                  collection.on('complete', function (err, docs) {
+                    if (docs) {
+                      from_coins = Math.floor(from_coins * Math.pow(.75, docs.length-1));
+                    }
+
+                    collection = db.get('usercollection').update({
+                      _id: db.get('usercollection').id(user._id)
+                    }, {
+                      $inc: { coins: from_coins }
+                    });
+                  });
                 } else {
                   return res.render('index', { user: user });
                 }
@@ -172,9 +190,19 @@ exports.unknown = function (req, res) {
   res.redirect('/');
 };
 
-exports.ensureAuthenticated = function (req, res, next) {
-  if (req.isAuthenticated()) { 
-    return next();
-  }
-  res.render('index', { error: 'You must be logged in to continue.' });
+exports.ensureAuthenticated = function (db) {
+  return function (req, res, next) {
+    if (req.isAuthenticated()) {
+      collection = db.get('usercollection').findOne({ _id: req.user._id });
+
+      collection.on('complete', function (err, doc) {
+        if (doc) {
+          req.user = doc;
+        }
+        return next();
+      });
+    } else {
+      res.render('index', { error: 'You must be logged in to continue.' });
+    }
+  };
 };
