@@ -88,7 +88,7 @@ exports.recognize = function (db, followup) {
 
     if (req.param && req.param('id') && req.param('id') != '') {
       queryToken = db.get('usercollection').id(req.param('id'));
-      collection = db.get('recognitioncollection').find({
+      collection = db.get('usercollection').find({
         email: { $ne: user.email },
         _id: queryToken
       }, '');
@@ -97,52 +97,64 @@ exports.recognize = function (db, followup) {
         if (docs.length > 0) {
           employee = docs[0];
 
-          // recognize this user
-          collection = db.get('recognitioncollection').insert({
-	    to_id: db.get('usercollection').id(employee._id),
-	    from_id: db.get('usercollection').id(user._id),
-	    message: message,
-	    coins: to_coins,
-	    date: thisdate
-          });
+          // find employees recent activity
+          collection = db.get('recognitioncollection').find({
+            to_id: db.get('usercollection').id(employee._id),
+            date: { $gt: thisdate-36000000 }
+          }, '');
 
-          collection.on('success', function (docs) {
-            // increment coins
-            collection = db.get('usercollection').update({
-              _id: db.get('usercollection').id(employee._id)
-            }, {
-              $inc: { coins: to_coins }
+          collection.on('complete', function (err, docs) {
+            if (docs) {
+              to_coins = Math.floor(to_coins * Math.pow(.9, docs.length));
+            }
+
+            // recognize this user
+            collection = db.get('recognitioncollection').insert({
+              to_id: db.get('usercollection').id(employee._id),
+	      from_id: db.get('usercollection').id(user._id),
+	      message: message,
+  	      coins: to_coins,
+      	      date: thisdate
             });
 
             collection.on('success', function (docs) {
-              res.locals.success = 'You just sent ' + employee.firstName + ' some swag, err, derpcoins. Karma+1';
-              if (typeof followup === 'function') {
-                req.query.id = employee._id;
-                followup(req, res);
-              } else {
-                res.render('index', { user: user });
-              }
+              // increment coins
+              collection = db.get('usercollection').update({
+                _id: db.get('usercollection').id(employee._id)
+              }, {
+                $inc: { coins: to_coins }
+              });
+
+              collection.on('success', function (docs) {
+                res.locals.success = 'You just sent ' + employee.firstName + ' some swag, err, derpcoins. Karma+1';
+                if (typeof followup === 'function') {
+                  req.query.id = employee._id;
+                  followup(req, res);
+                } else {
+                  return res.render('index', { user: user });
+                }
+              });
+
+              collection.on('error', function (err) {
+                return res.render('index', { user: user, error: 'Something went terribly wrong and ' + employee.firstName + ' didn\'t get their derpcoins.' });
+              });
             });
 
             collection.on('error', function (err) {
-              res.render('index', { user: user, error: 'Something went terribly wrong and ' + employee.firstName + ' didn\'t get their derpcoins.' });
+              return res.render('index', { user: user, error: 'Something went terribly wrong and ' + employee.firstName + ' didn\'t get their derpcoins.' });
             });
-          });
-
-          collection.on('error', function (err) {
-            res.render('index', { user: user, error: 'Something went terribly wrong and ' + employee.firstName + ' didn\'t get their derpcoins.' });
           });
         } else {
           // display no results or list of employees
-          res.render('index', { user: user, error: 'One does not simply recognize an invalid user...' });
+          return res.render('index', { user: user, error: 'One does not simply recognize an invalid user...' });
         }
       });
 
       collection.on('error', function (err) {
-        res.render('index', { user: user, error: err });
+        return res.render('index', { user: user, error: err });
       });
     } else {
-      res.render('index', { user: req.user, error: 'Dude, I don\'t know what you\'re talking about...' });
+      return res.render('index', { user: req.user, error: 'Dude, I don\'t know what you\'re talking about...' });
     }
   }
 };
