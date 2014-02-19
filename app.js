@@ -66,13 +66,13 @@ passport.use(new GoogleStrategy({
         done(null, doc);
       } else {
         console.log('INSERT: ' + identifier);
-//        collection.insert({
-//          "identifier": identifier,
-//          "email": profile.emails[0].value,
-//          "displayName": profile.displayName,
-//          "firstName": profile.name.givenName,
-//          "lastName": profile.name.familyName
-//        });
+        collection.insert({
+          "identifier": identifier,
+          "email": profile.emails[0].value,
+          "displayName": profile.displayName,
+          "firstName": profile.name.givenName,
+          "lastName": profile.name.familyName
+        });
         done(null, {
           _id: null,
           email: profile.emails[0].value,
