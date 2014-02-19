@@ -13,14 +13,14 @@ var util = require('util');
 var GoogleStrategy = require('passport-google').Strategy;
 var mongo = require('mongodb');
 var monk = require('monk');
-var db = monk('localhost:27017/derp');
+var db = monk('mongodb://admin:Password1@ds037737.mongolab.com:37737/derpcoin');
 
 
 // TODO: Implement Config
 var Tw = {
   Config: {
     basePath: function (service) {
-      return 'http://imac1.msws.trnswrks.com:3000' + service;
+      return 'http://derpcoin.herokuapp.com' + service;
     }
   }
 };
