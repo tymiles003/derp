@@ -71,14 +71,16 @@ passport.use(new GoogleStrategy({
           "email": profile.emails[0].value,
           "displayName": profile.displayName,
           "firstName": profile.name.givenName,
-          "lastName": profile.name.familyName
+          "lastName": profile.name.familyName,
+          "coins": 0
         });
-        done(null, {
-          _id: null,
-          email: profile.emails[0].value,
-          displayName: profile.displayName,
-          firstName: profile.name.givenName,
-          lastName: profile.name.familyName
+
+        collection.on('complete', function (err, doc) {
+          if (err) {
+            done(err);
+          } else {
+            done(null, doc);
+          }
         });
       }
     });
