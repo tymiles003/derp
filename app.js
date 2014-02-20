@@ -73,9 +73,7 @@ passport.use(new GoogleStrategy({
           "firstName": profile.name.givenName,
           "lastName": profile.name.familyName,
           "coins": 0
-        });
-
-        collection.on('complete', function (err, doc) {
+        }, function (err, doc) {
           if (err) {
             done(err);
           } else {
